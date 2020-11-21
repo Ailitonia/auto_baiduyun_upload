@@ -14,7 +14,7 @@ import sys
 import getopt
 import psutil
 import time
-import win32api
+from subprocess import Popen, PIPE
 from pynput import keyboard
 from log import logger
 
@@ -85,22 +85,18 @@ def upload_opr(file_path):
 
     logger.info(f'模拟上传文件操作, file: {file_path}')
     # 呼出资源管理器并等待启动, 选中指定文件并复制
-    params = fr'/select,{file_path}'
-    opr_returncode = win32api.ShellExecute(0, 'open', r'explorer', params, '', 1)
-    if opr_returncode < 32:
-        logger.error("Error: 打开explorer失败.")
-        return
+    cmd = fr'explorer /select,{file_path}'
+    p = Popen(cmd, shell=True, stdout=PIPE, stderr=PIPE)
+    p.wait()
     time.sleep(3)
     kb_press(keyboard.Key.ctrl, 'c')
     time.sleep(1)
     kb_press(keyboard.Key.alt, keyboard.Key.f4)
 
     # 呼出百度云管家窗口
-    params = fr'/select'
-    opr_returncode = win32api.ShellExecute(0, 'open', fr'{baiduyun_path}', params, '', 1)
-    if opr_returncode < 32:
-        logger.error("Error: 打开百度云失败.")
-        return
+    cmd = fr'{baiduyun_path}'
+    p = Popen(cmd, shell=True, stdout=PIPE, stderr=PIPE)
+    p.wait()
 
     # 直接粘贴(上传)
     time.sleep(3)

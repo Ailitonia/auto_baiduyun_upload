@@ -172,7 +172,3 @@ def text_sha1(text: str) -> str:
     sha1.update(text.encode('utf-8'))
     sha1_sum = sha1.hexdigest()
     return sha1_sum
-
-
-if __name__ == '__main__':
-    print(all_sub_file(21641569, 'Z:\\BililiveRecorder'))

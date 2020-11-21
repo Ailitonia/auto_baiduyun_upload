@@ -3,7 +3,7 @@ from auto_baiduyun_upload import upload_opr
 from config import RECORD_FILE_PATH
 from log import logger
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
-from util import query_live_sub_list, get_live_info, all_sub_file, check_new_file, text_sha1
+from util import query_live_sub_list, get_live_info, all_sub_file, check_new_file, text_sha1, add_file
 
 live_status = {}
 scheduler = AsyncIOScheduler()
@@ -42,8 +42,11 @@ async def main_job():
             if live_info['status'] in [0, 2]:
                 files_list = all_sub_file(sub_id=sub_id, path=RECORD_FILE_PATH)
                 for file_name, file_path in files_list:
-                    if check_new_file(text_sha1(file_name)):
+                    file_hash = text_sha1(file_name)
+                    if check_new_file(file_hash):
+                        add_file(file_hash, sub_id)
                         upload_opr(file_path)
+                        await asyncio.sleep(2)
                 # 更新直播间状态
                 live_status[sub_id] = live_info['status']
             # 开播了
